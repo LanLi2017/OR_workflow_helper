@@ -45,11 +45,6 @@
         "repeatCount": 10
     },
     {
-        "op": "core/column-removal",
-        "description": "Remove column Danmaku_pool",
-        "columnName": "Danmaku_pool"
-    },
-    {
         "op": "core/column-split",
         "description": "Split column Video_Time by separator",
         "engineConfig": {
@@ -58,7 +53,7 @@
         },
         "columnName": "Video_Time",
         "guessCellType": true,
-        "removeOriginalColumn": true,
+        "removeOriginalColumn": false,
         "mode": "separator",
         "separator": ".",
         "regex": false,

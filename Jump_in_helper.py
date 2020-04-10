@@ -81,10 +81,11 @@ class RERineOP(refine.RefineProject):
     ):
         return super().split_column(column, separator, mode, regex, remove_original_column=False)
 
-    def map_historyid_columns(self):
+    def map_historyid_columns(self,undo_redo = 'past'):
         # there is no history id for step 0: create project
+
         history = self.get_history()
-        id_list = [ID['id'] for ID in history['past']]
+        id_list = [ID['id'] for ID in history[undo_redo]]
 
         # initialize
         init_history = id_list[0]
@@ -98,25 +99,24 @@ class RERineOP(refine.RefineProject):
         })
         return diff
 
-    def map_historyid_ops(self,undo_redo='past',follow_start = 0):
+    def map_historyid_ops(self,undo_redo='past',follow_start = 0,ops=None):
         # check following history id mapping to operation
         # history id: operation name
-        # history id: operations
+        # history id: operations , after undo, there is no operations for future
         history = self.get_history()
-        pprint(f"history can not find :{history}")
         id_list = [ID['id'] for ID in history[undo_redo]]
-        id_list1 = [ID['id'] for ID in history['future']]
-        pprint(f"hello : {id_list1}")
-
-        print(f"id can not find in :{id_list}")
         f_id_list = id_list[follow_start:]
 
-        op_history = self.get_operations()
+        if ops:
+            op_history = ops
+        else:
+            op_history = self.get_operations()
         f_ops = op_history
-        op_name_list = [op['op'].split('/')[1] for op in op_history]
-        f_op_name_list = op_name_list[follow_start:]
 
-        id_opname = dict( zip(f_id_list, f_op_name_list))
+        op_name_list = [op['op'].split('/')[1] for op in f_ops]
+        # f_op_name_list = op_name_list[follow_start:]
+
+        id_opname = dict( zip(f_id_list, op_name_list))
         id_ops = dict(zip(f_id_list, f_ops))
         return id_opname,id_ops
 
@@ -124,13 +124,12 @@ class RERineOP(refine.RefineProject):
 class OPDependency(RERineOP):
     # operation name mapping to dependency/parameters
     # return dependency set (old, new)
-    def __init__(self, server,projectid, history_id, undo_redo='past'):
+    def __init__(self, server, projectid, history_id, undo_redo='past',follow_start = 0,ops=None):
         super().__init__(server, projectid)
         # each operation
         self.history_id = history_id
-        self.mapping_ops_col = super().map_historyid_columns()
-        # self.mapping_ops_name = super().map_historyid_ops(undo_redo)[0]
-        # self.mapping_ops = super().map_historyid_ops()[1]
+        self.follow_start = follow_start
+        self.following_ops = ops
         self.undo_redo = undo_redo
 
     def mapping(self):
@@ -142,10 +141,13 @@ class OPDependency(RERineOP):
         "column-removal": opd.remove_column
         '''
         # op_name = self.mapping_ops_name[self.history_id]
-        op_name = super().map_historyid_ops(undo_redo=self.undo_redo)[0]
+        id_opname = super().map_historyid_ops(undo_redo=self.undo_redo,follow_start=self.follow_start,ops = self.following_ops)[0]
+        op_name = id_opname[self.history_id]
+
         if op_name =='column-addition':
             return self.add_column_d()
         elif op_name == 'column-split':
+            print("split operation")
             return self.split_column_d()
         elif op_name == 'column-rename':
             return self.rename_column_d()
@@ -169,10 +171,11 @@ class OPDependency(RERineOP):
         # cells["Column 1"].value + cells["Column 2"].value
         # cells.MyCol1.value + cells.MyCol2.value
         # row.record.cells.AuthorFirstName.value + " " + row.record.cells.AuthorLastName.value
-        ops = super().map_historyid_ops(undo_redo=self.undo_redo)[1]
+        ops = super().map_historyid_ops(undo_redo=self.undo_redo,follow_start=self.follow_start,ops= self.following_ops)[1]
         add_ops = ops[self.history_id]
         expression = add_ops['expression']
-        add_cols = self.mapping_ops_col[self.history_id]
+        add_cols = super().map_historyid_columns(undo_redo=self.undo_redo)[self.history_id]
+            # self.mapping_ops_col[self.history_id]
         input_nodes = []
         try:
             input_nodes = re.findall(r"grel:cells\.(.*)\.value\s\+\scells.(.*).value",expression)
@@ -201,10 +204,12 @@ class OPDependency(RERineOP):
         There is no record for new generated columns in OpenRefine
         '''
 
-        split_ops = super().map_historyid_ops(undo_redo=self.undo_redo)[1]
+        ops = super().map_historyid_ops(undo_redo=self.undo_redo,follow_start=self.follow_start,ops= self.following_ops)[1]
+
+        split_ops = ops[self.history_id]
         input_node = split_ops['columnName']
         # after splitting, what's the changes?
-        split_cols = self.mapping_ops_col[self.history_id]
+        split_cols = super().map_historyid_columns(undo_redo=self.undo_redo)[self.history_id]
         split_d = (input_node, split_cols)
         return split_d
 
@@ -223,7 +228,8 @@ class OPDependency(RERineOP):
           'oldColumnName': 'Showing_time',
           'op': 'core/column-rename'},
         '''
-        rename_ops = super().map_historyid_ops(undo_redo=self.undo_redo)[1]
+        ops = super().map_historyid_ops(undo_redo=self.undo_redo,follow_start=self.follow_start,ops= self.following_ops)[1]
+        rename_ops =  ops[self.history_id]
         oldcolumn = rename_ops['oldColumnName']
         newcolumn = rename_ops['newColumnName']
         # return (input, output)
@@ -318,27 +324,35 @@ def case():
 
     # get history id and do undo
     history_id_list = refineop.get_history()
-    step_history_id = history_id_list['past'][op_step]['id']
+    hid_list = [hid['id'] for hid in history_id_list['past'] ]
+    print(hid_list)
+    step_history_id = hid_list[op_step]
+    print(step_history_id)
 
     # return undo dependency
-    undo_opd = OPDependency(server, projectID, step_history_id)
+    undo_opd = OPDependency(server, projectID, step_history_id,undo_redo='past')
     undo_dependency = undo_opd.mapping()
-    print(f'undo dependency: {undo_dependency}')
+    print(f'undo dependency :{undo_dependency}')
 
-    undo_id = history_id_list['past'][undo_step]['id']
-    refineop.undo_project(undo_id) # history will get changed :  {past:[]}, {future:[]}
-    #
+    undo_project_id = hid_list[undo_step]
+    # refineop.undo_project(undo_project_id)
+    refineop.undo_project(undo_project_id) # history will get changed :  {past:[]}, {future:[]}
 
     # save future-following operation history: discard rewritten operation
-    # future = refineop.get_future_history()
-    undo_history_id_list = refineop.get_history()
-    future_history_id = [ID['id'] for ID in undo_history_id_list['future']]
+    future = refineop.get_future_history()
+    # undo_history_id_list = refineop.get_history()
+    future_history_id = [ID['id'] for ID in future]
+    future_ops = complete_op_history[rewrite_step:]
+    f_hid_following = future_history_id[1:]
     future_deps = []
-    for hid in future_history_id:
-        future_opd = OPDependency(server, projectID, hid, undo_redo='future')
+    for hid in f_hid_following:
+        future_opd = OPDependency(server, projectID, hid, undo_redo='future',follow_start=1,ops=future_ops)
         future_dependency = future_opd.mapping()
-        print(f"future : {future_dependency}")
         future_deps.append(future_dependency)
+    print(f'future dependency: {future_deps}')
+
+    # undo
+    refineop.undo_project(undo_project_id)
 
     # redo step 3: rename Created_time to Created
     # redo and undo: see if the dependency changes
@@ -378,7 +392,6 @@ def main():
     undo_following = future[1:]
     undo_fol_id_list = [ID['id'] for ID in undo_following]
 
-    get_models(project_id)
     # recipe_name = 'split_helper.json'
     # history_p = f'OpenRefineHistory/{recipe_name}'
     # load recipe from OpenRefine server
@@ -391,13 +404,18 @@ def main():
 
 def test():
 
-    # projectID = 2247657852239
-    # server = refine.RefineServer()
-    # refineop = RERineOP(server, projectID)
+    projectID = 2247657852239
+    server = refine.RefineServer()
+    refineop = RERineOP(server, projectID)
     # refineop.map_historyid_name()
-    # history = refineop.get_history()
+    history = refineop.get_history()
+    history_list = [ID['id'] for ID in history['past']]
     # refineop.map_historyid_columns()
-    # refineop.undo_project()
+    rewrite_step = 3
+    undo_step = rewrite_step -2
+    undo_project_id = history_list[undo_step]
+
+    refineop.undo_project(undo_project_id)
     # redo_id_list = [ID['id'] for ID in history['future']]
     # print(redo_id_list)
     #
@@ -426,7 +444,6 @@ def test():
 
     regex = re.findall(r"grel:cells\.(.*)\.value\s\+\scells.(.*).value", str1)
     regex2 = re.findall(r"grel:cells[\\'\'(.*)\\\'']\.value\s\+\scells[\\'\'(.*)\\\'']\.value", str2)
-    print(regex2)
 
 
 def test1():
@@ -447,4 +464,5 @@ def test1():
 
 
 if __name__ == '__main__':
+    # test()
     case()
