@@ -1,0 +1,189 @@
+[
+  {
+    "op": "core/mass-edit",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "Name",
+    "expression": "value",
+    "edits": [
+      {
+        "from": [
+          "Asian Netwalking Media",
+          "Asian Netwalking Media    "
+        ],
+        "fromBlank": false,
+        "fromError": false,
+        "to": "Asian Netwalking Media"
+      }
+    ],
+    "description": "Mass edit cells in column Name"
+  },
+  {
+    "op": "core/row-removal",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "Name",
+          "expression": "value",
+          "columnName": "Name",
+          "invert": false,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": "_���_���_��__���-_���_���_��__�ր \" _���_�___�___�___�_�_�_�_�_�_�_� _�_�_�___�_�_�_�_�� \"",
+                "l": "_���_���_��__���-_���_���_��__�ր \" _���_�___�___�___�_�_�_�_�_�_�_� _�_�_�___�_�_�_�_�� \""
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        }
+      ],
+      "mode": "row-based"
+    },
+    "description": "Remove rows"
+  },
+  {
+    "op": "core/column-split",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "Author",
+    "guessCellType": true,
+    "removeOriginalColumn": true,
+    "mode": "separator",
+    "separator": "#",
+    "regex": false,
+    "maxColumns": 0,
+    "description": "Split column Author by separator"
+  },
+  {
+    "op": "core/column-rename",
+    "oldColumnName": "Author 1",
+    "newColumnName": "AuthorID",
+    "description": "Rename column Author 1 to AuthorID"
+  },
+  {
+    "op": "core/mass-edit",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "Country",
+    "expression": "value",
+    "edits": [
+      {
+        "from": [
+          "U.S.A",
+          "USA"
+        ],
+        "fromBlank": false,
+        "fromError": false,
+        "to": "U.S.A"
+      },
+      {
+        "from": [
+          "US",
+          "US "
+        ],
+        "fromBlank": false,
+        "fromError": false,
+        "to": "US"
+      }
+    ],
+    "description": "Mass edit cells in column Country"
+  },
+  {
+    "op": "core/row-removal",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "Country",
+          "expression": "value",
+          "columnName": "Country",
+          "invert": false,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": "US",
+                "l": "US"
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        }
+      ],
+      "mode": "row-based"
+    },
+    "description": "Remove rows"
+  },
+  {
+    "op": "core/text-transform",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "AuthorID",
+    "expression": "value.toTitlecase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10,
+    "description": "Text transform on cells in column AuthorID using expression value.toTitlecase()"
+  },
+  {
+    "op": "core/row-removal",
+    "engineConfig": {
+      "facets": [
+        {
+          "type": "list",
+          "name": "AuthorID",
+          "expression": "value",
+          "columnName": "AuthorID",
+          "invert": false,
+          "omitBlank": false,
+          "omitError": false,
+          "selection": [
+            {
+              "v": {
+                "v": "@yukaf24",
+                "l": "@yukaf24"
+              }
+            }
+          ],
+          "selectBlank": false,
+          "selectError": false
+        }
+      ],
+      "mode": "row-based"
+    },
+    "description": "Remove rows"
+  },
+  {
+    "op": "core/column-addition",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "baseColumnName": "AuthorID",
+    "expression": "grel:cells.AuthorID.value + '_' + cells.Country.value",
+    "onError": "set-to-blank",
+    "newColumnName": "Author_Country",
+    "columnInsertIndex": 5,
+    "description": "Create column Author_Country at index 5 based on column AuthorID using expression grel:cells.AuthorID.value + '_' + cells.Country.value"
+  },
+  {
+    "op": "core/column-removal",
+    "columnName": "AuthorID",
+    "description": "Remove column AuthorID"
+  }
+]

@@ -1,0 +1,67 @@
+[
+    {
+        "op": "core/column-rename",
+        "description": "Rename column Showing_time to Video_Time",
+        "oldColumnName": "Showing_time",
+        "newColumnName": "Video_Time"
+    },
+    {
+        "op": "core/text-transform",
+        "description": "Text transform on cells in column Video_Time using expression value.toNumber()",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Video_Time",
+        "expression": "value.toNumber()",
+        "onError": "keep-original",
+        "repeat": false,
+        "repeatCount": 10
+    },
+    {
+        "op": "core/column-addition",
+        "description": "Create column Mode_font at index 4 based on column Mode using expression grel:cells.Mode.value + cells.Font_size.value",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "newColumnName": "Mode_font",
+        "columnInsertIndex": 4,
+        "baseColumnName": "Mode",
+        "expression": "grel:cells.Mode.value + cells.Font_size.value",
+        "onError": "set-to-blank"
+    },
+    {
+        "op": "core/text-transform",
+        "description": "Text transform on cells in column Row_no using expression value.toNumber()",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Row_no",
+        "expression": "value.toNumber()",
+        "onError": "keep-original",
+        "repeat": false,
+        "repeatCount": 10
+    },
+    {
+        "op": "core/column-removal",
+        "description": "Remove column Danmaku_pool",
+        "columnName": "Danmaku_pool"
+    },
+    {
+        "op": "core/column-split",
+        "description": "Split column Video_Time by separator",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Video_Time",
+        "guessCellType": true,
+        "removeOriginalColumn": true,
+        "mode": "separator",
+        "separator": ".",
+        "regex": false,
+        "maxColumns": 0
+    }
+]
