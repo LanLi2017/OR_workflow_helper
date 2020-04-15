@@ -1,62 +1,120 @@
 [
     {
-        "op": "core/column-rename",
-        "description": "Rename column Showing_time to Video_Time",
-        "oldColumnName": "Showing_time",
-        "newColumnName": "Video_Time"
-    },
-    {
         "op": "core/text-transform",
-        "description": "Text transform on cells in column Video_Time using expression value.toNumber()",
+        "description": "Text transform on cells in column Author using expression value.replace(\"#\",\" \")",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "Video_Time",
-        "expression": "value.toNumber()",
+        "columnName": "Author",
+        "expression": "value.replace(\"#\",\" \")",
         "onError": "keep-original",
         "repeat": false,
         "repeatCount": 10
     },
     {
-        "op": "core/column-addition",
-        "description": "Create column Mode_font at index 4 based on column Mode using expression grel:cells.Mode.value + cells.Font_size.value",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "newColumnName": "Mode_font",
-        "columnInsertIndex": 4,
-        "baseColumnName": "Mode",
-        "expression": "grel:cells.Mode.value + cells.Font_size.value",
-        "onError": "set-to-blank"
-    },
-    {
         "op": "core/text-transform",
-        "description": "Text transform on cells in column Row_no using expression value.toNumber()",
+        "description": "Text transform on cells in column Author using expression value.replace(\"?\",\" \")",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "Row_no",
-        "expression": "value.toNumber()",
+        "columnName": "Author",
+        "expression": "value.replace(\"?\",\" \")",
         "onError": "keep-original",
         "repeat": false,
         "repeatCount": 10
     },
     {
         "op": "core/column-split",
-        "description": "Split column Video_Time by separator",
+        "description": "Split column Name by separator",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "Video_Time",
+        "columnName": "Name",
         "guessCellType": true,
         "removeOriginalColumn": false,
         "mode": "separator",
-        "separator": ".",
+        "separator": " ",
         "regex": false,
         "maxColumns": 0
+    },
+    {
+        "op": "core/text-transform",
+        "description": "Text transform on cells in column Name 1 using expression value.toLowercase()",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Name 1",
+        "expression": "value.toLowercase()",
+        "onError": "keep-original",
+        "repeat": false,
+        "repeatCount": 10
+    },
+    {
+        "op": "core/column-rename",
+        "description": "Rename column State/Region to State",
+        "oldColumnName": "State/Region",
+        "newColumnName": "State"
+    },
+    {
+        "op": "core/text-transform",
+        "description": "Text transform on cells in column Country using expression value.toString()",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "Country",
+        "expression": "value.toString()",
+        "onError": "keep-original",
+        "repeat": false,
+        "repeatCount": 10
+    },
+    {
+        "op": "core/text-transform",
+        "description": "Text transform on cells in column State using expression value.toString()",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "columnName": "State",
+        "expression": "value.toString()",
+        "onError": "keep-original",
+        "repeat": false,
+        "repeatCount": 10
+    },
+    {
+        "op": "core/column-addition",
+        "description": "Create column Country_State at index 17 based on column Country using expression grel:cells.Country.value + \" \"+ cells.State.value",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "newColumnName": "Country_State",
+        "columnInsertIndex": 17,
+        "baseColumnName": "Country",
+        "expression": "grel:cells.Country.value + \" \"+ cells.State.value",
+        "onError": "set-to-blank"
+    },
+    {
+        "op": "core/column-rename",
+        "description": "Rename column Name 1 to First_Name",
+        "oldColumnName": "Name 1",
+        "newColumnName": "First_Name"
+    },
+    {
+        "op": "core/column-addition",
+        "description": "Create column Author_FirstName at index 5 based on column Author using expression grel:cells.Author.value+\" \"+cells.First_Name.value",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "newColumnName": "Author_FirstName",
+        "columnInsertIndex": 5,
+        "baseColumnName": "Author",
+        "expression": "grel:cells.Author.value+\" \"+cells.First_Name.value",
+        "onError": "set-to-blank"
     }
 ]
