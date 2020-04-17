@@ -1,0 +1,49 @@
+digraph "gv/init_G" {
+	node [shape=ellipse]
+	GUID
+	"Date(CST)"
+	URL
+	Contents
+	Author
+	Name
+	Country
+	"State/Region"
+	"City/Urban Area"
+	Category
+	Emotion
+	Source
+	Gender
+	Posts
+	Followers
+	Following
+	"Influence Score"
+	"Post Title"
+	"Post Type"
+	"Image URL"
+	Brand
+	filename
+	node [shape=box]
+	"create project"
+	filename -> "create project"
+	"create project" -> GUID
+	"create project" -> "Date(CST)"
+	"create project" -> URL
+	"create project" -> Contents
+	"create project" -> Author
+	"create project" -> Name
+	"create project" -> Country
+	"create project" -> "State/Region"
+	"create project" -> "City/Urban Area"
+	"create project" -> Category
+	"create project" -> Emotion
+	"create project" -> Source
+	"create project" -> Gender
+	"create project" -> Posts
+	"create project" -> Followers
+	"create project" -> Following
+	"create project" -> "Influence Score"
+	"create project" -> "Post Title"
+	"create project" -> "Post Type"
+	"create project" -> "Image URL"
+	"create project" -> Brand
+}

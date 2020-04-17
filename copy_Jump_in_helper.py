@@ -514,7 +514,7 @@ def main():
     undo_following = future[1:]
     undo_fol_id_list = [ID['id'] for ID in undo_following]
 
-    # recipe_name = 'split_helper.json'
+    # recipe_name = 'graph_helper.json'
     # history_p = f'OpenRefineHistory/{recipe_name}'
     # load recipe from OpenRefine server
     # get_history(projectID, history_p)

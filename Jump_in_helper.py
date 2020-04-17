@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 
 from graphviz import Digraph
 import networkx as nx
+from halp.directed_hypergraph import DirectedHypergraph
+from networkx.drawing.nx_agraph import graphviz_layout
 
 from OpenRefineClientPy3.google_refine.refine import refine
 
@@ -234,6 +236,7 @@ class OPDependency(RERineOP):
           'description': 'Remove column Danmaku_pool',
           'op': 'core/column-removal'}]
         '''
+
         return
 
     def rename_column_d(self):
@@ -433,18 +436,115 @@ def tree_dep(pairs):
     # print(json.dumps(roots, indent=4))
 
 
-def graph(id_pairs):
-    G = nx.Graph()
-    G.add_edges_from(id_pairs)
-    nx.draw_networkx(G, with_labels=True)
+def graph():
+    # G = nx.Graph()
+    # G.add_edges_from(id_pairs)
+    # nx.draw_networkx(G, with_labels=True)
+    # plt.show()
+    e = Digraph()
+    e.attr('node', shape='ellipse')
+    e.node('Date (CST)')
+    e.node('Date (CST)1')
+    e.node('Author')
+    e.node('Author1')
+    e.node('Author2')
+    e.node('Author_Name')
+    e.node('Author_Name1')
+    e.edge('Date (CST)','Date (CST)1')
+    e.edge('Author','Author1')
+    e.edge('Author1','Author2')
+    e.edge('Author2','Author_Name')
+    e.edge('Name', 'Author_Name')
+    e.edge('Author_Name','Author_Name1')
+
+    e.view()
+
+
+def graph_id():
+    e = Digraph()
+    e.attr('node', shape='ellipse')
+    e.node('0')
+    e.node('1')
+    e.node('2')
+    e.node('3')
+    e.node('5')
+    e.node(7)
+    e.node(8)
+    e.node(9)
+    e.node(11)
+
+    e.edge(0,1)
+    e.edge(2,3)
+    e.edge(3,5)
+    e.edge(5,7)
+    e.edge(8,9)
+    e.edge(9,11)
+
+    e.view()
+
+
+def hyperdep():
+    # hyper graph of dependency
+
+    # initialize an empty hypergraph
+    G = nx.DiGraph()
+
+    G.add_edge('Date (CST)','Date (CST)1', weight=0.6, length=25)
+    G.add_edge('Author','Author2',weight=0.9)
+    G.add_edge('Author2','Author3', weight =0.8)
+    # (Author, Name) -> (Author_Name)
+    G.add_edge('Author3','Author_Name', weight = 0.2)
+    G.add_edge('Name', 'Author_Name', weight = 0.1, length = 24)
+    G.add_edge('Author3', 'Name', weight = 0.3, length = 25)
+    G.add_edge('Author_Name','Author_Name5',weight=0.7, length= 20)
+
+    elarge = [(u,v) for (u,v,d) in G.edges(data=True) if d['weight']>0.5]
+    esmall = [(u,v) for (u,v,d) in G.edges(data=True) if d['weight']<=0.5]
+
+    pos = nx.spring_layout(G, k=0.15,iterations=20)  # positions for all ndoes
+    plt.figure(figsize=(24,30))
+
+    # nodes
+    nx.draw_networkx_nodes(G, pos, node_size=700, nodelist=['Date (CST)', 'Date (CST)1', 'Author','Author2','Author_Name5' ],
+                           node_color='blue')
+    nx.draw_networkx_nodes(G, pos, node_size=1400, nodelist=['Author3', 'Name', 'Author_Name'],
+                           node_color='yellow', node_shape='*')
+
+    # edges
+
+    nx.draw_networkx_edges(G, pos, edgelist=elarge,
+                           width=6)
+    nx.draw_networkx_edges(G, pos, edgelist=esmall,
+                           width=6, alpha=0.5, edge_color='b', style='dashed')
+
+    # labels
+    nx.draw_networkx_labels(G, pos, font_size=25, font_family='sans-serif', font_color='red', font_weight='bold',
+                            labels={'Date (CST)': 'Date (CST)', 'Date (CST)1': 'Date (CST)1', 'Author': 'Author',
+                                    'Author2':'Author2', 'Author_Name5':'Author_Name5'})
+    nx.draw_networkx_labels(G, pos, font_size=25, font_family='sans-serif', font_color='red', font_weight='bold',
+                            labels={'Author3': 'Author3', 'Name': 'Name', 'Author_Name': 'Author_Name'})
+
+    plt.axis('off')
+    plt.savefig('hyper.png')
     plt.show()
 
 
 if __name__ == '__main__':
-    name_pairs = dependency()
-    print(name_pairs)
-    id_pairs = name_pairs_to_id_pairs(name_pairs)
-    print(id_pairs)
+    # name_pairs = dependency()
+    # [
+    # ('Date (CST)', 'Date (CST)'),
+    # ('Author', 'Author'),
+    # ('Author', 'Author'),
+    # ('Author', 'Author_Name'),
+    # ('Name', 'Author_Name'),
+    # ('Author_Name', 'Author_Name')
+    # ]
+    # graph()
+    # id_pairs = name_pairs_to_id_pairs(name_pairs)
+    # print(id_pairs)
+    # graph()
+    # graph_id()
     # pprint(id_pairs)
     # tree_dep(id_pairs)
-    graph(id_pairs)
+    # graph(id_pairs)
+    hyperdep()

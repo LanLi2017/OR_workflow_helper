@@ -1,120 +1,67 @@
 [
     {
         "op": "core/text-transform",
-        "description": "Text transform on cells in column Author using expression value.replace(\"#\",\" \")",
+        "description": "Text transform on cells in column Date (CST) using expression value.toDate()",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "Author",
-        "expression": "value.replace(\"#\",\" \")",
+        "columnName": "Date (CST)",
+        "expression": "value.toDate()",
         "onError": "keep-original",
         "repeat": false,
         "repeatCount": 10
     },
     {
         "op": "core/text-transform",
-        "description": "Text transform on cells in column Author using expression value.replace(\"?\",\" \")",
+        "description": "Text transform on cells in column Author using expression value.replace(\"@\",\" \")",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
         "columnName": "Author",
-        "expression": "value.replace(\"?\",\" \")",
+        "expression": "value.replace(\"@\",\" \")",
         "onError": "keep-original",
         "repeat": false,
         "repeatCount": 10
     },
     {
-        "op": "core/column-split",
-        "description": "Split column Name by separator",
+        "op": "core/text-transform",
+        "description": "Text transform on cells in column Author using expression value.trim()",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "Name",
-        "guessCellType": true,
-        "removeOriginalColumn": false,
-        "mode": "separator",
-        "separator": " ",
-        "regex": false,
-        "maxColumns": 0
+        "columnName": "Author",
+        "expression": "value.trim()",
+        "onError": "keep-original",
+        "repeat": false,
+        "repeatCount": 10
+    },
+    {
+        "op": "core/column-addition",
+        "description": "Create column Author_Name at index 5 based on column Author using expression grel:cells.Author.value+'-'+cells.Name.value",
+        "engineConfig": {
+            "facets": [],
+            "mode": "row-based"
+        },
+        "newColumnName": "Author_Name",
+        "columnInsertIndex": 5,
+        "baseColumnName": "Author",
+        "expression": "grel:cells.Author.value+'-'+cells.Name.value",
+        "onError": "set-to-blank"
     },
     {
         "op": "core/text-transform",
-        "description": "Text transform on cells in column Name 1 using expression value.toLowercase()",
+        "description": "Text transform on cells in column Author_Name using expression value.toLowercase()",
         "engineConfig": {
             "facets": [],
             "mode": "row-based"
         },
-        "columnName": "Name 1",
+        "columnName": "Author_Name",
         "expression": "value.toLowercase()",
         "onError": "keep-original",
         "repeat": false,
         "repeatCount": 10
-    },
-    {
-        "op": "core/column-rename",
-        "description": "Rename column State/Region to State",
-        "oldColumnName": "State/Region",
-        "newColumnName": "State"
-    },
-    {
-        "op": "core/text-transform",
-        "description": "Text transform on cells in column Country using expression value.toString()",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "Country",
-        "expression": "value.toString()",
-        "onError": "keep-original",
-        "repeat": false,
-        "repeatCount": 10
-    },
-    {
-        "op": "core/text-transform",
-        "description": "Text transform on cells in column State using expression value.toString()",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "columnName": "State",
-        "expression": "value.toString()",
-        "onError": "keep-original",
-        "repeat": false,
-        "repeatCount": 10
-    },
-    {
-        "op": "core/column-addition",
-        "description": "Create column Country_State at index 17 based on column Country using expression grel:cells.Country.value + \" \"+ cells.State.value",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "newColumnName": "Country_State",
-        "columnInsertIndex": 17,
-        "baseColumnName": "Country",
-        "expression": "grel:cells.Country.value + \" \"+ cells.State.value",
-        "onError": "set-to-blank"
-    },
-    {
-        "op": "core/column-rename",
-        "description": "Rename column Name 1 to First_Name",
-        "oldColumnName": "Name 1",
-        "newColumnName": "First_Name"
-    },
-    {
-        "op": "core/column-addition",
-        "description": "Create column Author_FirstName at index 5 based on column Author using expression grel:cells.Author.value+\" \"+cells.First_Name.value",
-        "engineConfig": {
-            "facets": [],
-            "mode": "row-based"
-        },
-        "newColumnName": "Author_FirstName",
-        "columnInsertIndex": 5,
-        "baseColumnName": "Author",
-        "expression": "grel:cells.Author.value+\" \"+cells.First_Name.value",
-        "onError": "set-to-blank"
     }
 ]
